@@ -106,6 +106,8 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
             transition: transform 0.2s ease;
         }
         
@@ -115,13 +117,6 @@
         
         .like-btn:active {
             transform: scale(0.95);
-        }
-        
-        .loading {
-            text-align: center;
-            color: white;
-            font-size: 18px;
-            padding: 40px;
         }
         
         footer {
@@ -140,7 +135,7 @@
         </header>
 
         <div class="projects-grid" id="projectsGrid">
-            <div class="loading">Loading projects...</div>
+            <!-- Projects loaded here -->
         </div>
 
         <footer>
@@ -149,10 +144,6 @@
     </div>
 
     <script>
-        // REPLACE THIS WITH YOUR ACTUAL SHEET ID
-        const SHEET_ID = '1PICj7sq2iL__kKUa4NMQ3ZGDGxaZAlPQ2oPi-0cIWWI';
-        const SCRIPT_URL = 'https://script.google.com/a/macros/roche.com/s/AKfycbxDIjpCNDGYqfneXIx-qtQcmnEq9LCJXyem3eNWSdD17gt1vDce9QtfU6taOE56zB0v/exec';
-        
         const projects = {
             "KZ-001": {
                 title: "Reduce Process Time",
@@ -176,36 +167,16 @@
             }
         };
 
-        // Fetch likes from Google Sheets
-        async function fetchLikes() {
-    try {
-        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/query?tq=select A,B&headers=1`;
-        const response = await fetch(url);
-        const text = await response.text();
-        
-        // Parse Google Visualization API response
-        const data = JSON.parse(text.substring(47).slice(0, -2));
-        const rows = data.table.rows;
-        
-        let likes = {};
-        rows.forEach(row => {
-            const projectId = row.c[0].v;
-            const likeCount = row.c[1].v;
-            likes[projectId] = likeCount;
-        });
-        
-        return likes;
-    } catch (error) {
-        console.error('Error fetching likes:', error);
-        return {};
-    }
-}
+        let likes = {
+            "KZ-001": 0,
+            "KZ-002": 0,
+            "KZ-003": 0,
+            "KZ-004": 0,
+            "KZ-005": 0
+        };
 
-        // Render projects with likes from Google Sheets
-        async function renderProjects() {
+        function renderProjects() {
             const grid = document.getElementById('projectsGrid');
-            const likes = await fetchLikes();
-            
             grid.innerHTML = '';
 
             for (let projectId in projects) {
@@ -220,7 +191,7 @@
                     <div class="project-description">${project.description}</div>
                     <div class="likes-section">
                         <div class="likes-count">❤️ ${likeCount}</div>
-                        <a href="nfc-like.html?id=${projectId}" class="like-btn" style="text-decoration: none;">👍 Like</a>
+                        <a href="nfc-like.html?id=${projectId}" class="like-btn">👍 Like</a>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -229,10 +200,9 @@
             document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
         }
 
-        // Refresh every 3 seconds to show updated likes
         window.addEventListener('DOMContentLoaded', () => {
             renderProjects();
-            setInterval(renderProjects, 3000);
+            setInterval(renderProjects, 2000);
         });
     </script>
 </body>
