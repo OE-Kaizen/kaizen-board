@@ -106,6 +106,8 @@
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
             transition: transform 0.2s ease;
         }
         
@@ -133,7 +135,7 @@
         </header>
 
         <div class="projects-grid" id="projectsGrid">
-            <!-- Projects will be loaded here -->
+            <!-- Projects loaded here -->
         </div>
 
         <footer>
@@ -142,6 +144,7 @@
     </div>
 
     <script>
+        // Using localStorage as simple database
         const projects = {
             "KZ-001": {
                 title: "Reduce Process Time",
@@ -165,6 +168,7 @@
             }
         };
 
+        // Initialize localStorage with 0 if not set
         function initializeLikes() {
             for (let projectId in projects) {
                 if (!localStorage.getItem(`likes_${projectId}`)) {
@@ -179,7 +183,7 @@
 
             for (let projectId in projects) {
                 const project = projects[projectId];
-                const likes = localStorage.getItem(`likes_${projectId}`) || '0';
+                const likeCount = localStorage.getItem(`likes_${projectId}`) || '0';
 
                 const card = document.createElement('div');
                 card.className = 'project-card';
@@ -188,8 +192,8 @@
                     <div class="project-title">${project.title}</div>
                     <div class="project-description">${project.description}</div>
                     <div class="likes-section">
-                        <div class="likes-count">❤️ ${likes}</div>
-                        <button class="like-btn" onclick="addLike('${projectId}')">👍 Like</button>
+                        <div class="likes-count">❤️ ${likeCount}</div>
+                        <a href="nfc-like.html?id=${projectId}" class="like-btn">👍 Like</a>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -198,15 +202,15 @@
             document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
         }
 
-        function addLike(projectId) {
-            let likes = parseInt(localStorage.getItem(`likes_${projectId}`)) || 0;
-            likes++;
-            localStorage.setItem(`likes_${projectId}`, likes);
-            renderProjects();
-        }
-
         window.addEventListener('DOMContentLoaded', () => {
             initializeLikes();
+            renderProjects();
+            // Refresh every 2 seconds to show updates from other devices
+            setInterval(renderProjects, 2000);
+        });
+
+        // Listen for storage changes from other tabs/windows
+        window.addEventListener('storage', () => {
             renderProjects();
         });
     </script>
