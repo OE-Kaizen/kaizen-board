@@ -117,16 +117,11 @@
             transform: scale(0.95);
         }
         
-        .success-message {
-            color: #27ae60;
-            font-size: 12px;
-            margin-top: 8px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .success-message.show {
-            opacity: 1;
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            padding: 40px;
         }
         
         footer {
@@ -145,7 +140,7 @@
         </header>
 
         <div class="projects-grid" id="projectsGrid">
-            <!-- Projects will be loaded here by JavaScript -->
+            <div class="loading">Loading projects...</div>
         </div>
 
         <footer>
@@ -154,52 +149,67 @@
     </div>
 
     <script>
-        // Projects data - stored in browser's local storage
+        // REPLACE THIS WITH YOUR ACTUAL SHEET ID
+        const SHEET_ID = '1PICj7sq2iL__kKUa4NMQ3ZGDGxaZAlPQ2oPi-0cIWWI';
+        
         const projects = {
             "KZ-001": {
                 title: "Reduce Process Time",
-                description: "Streamline approval workflow to reduce turnaround time by 40%",
-                team: "Operations"
+                description: "Streamline approval workflow to reduce turnaround time by 40%"
             },
             "KZ-002": {
                 title: "Cost Reduction",
-                description: "Optimize material sourcing and reduce procurement costs",
-                team: "Supply Chain"
+                description: "Optimize material sourcing and reduce procurement costs"
             },
             "KZ-003": {
                 title: "Waste Elimination",
-                description: "Cut packaging waste and improve sustainability practices",
-                team: "Manufacturing"
+                description: "Cut packaging waste and improve sustainability practices"
             },
             "KZ-004": {
                 title: "Quality Improvement",
-                description: "Reduce defects in final testing phase by 50%",
-                team: "QA"
+                description: "Reduce defects in final testing phase by 50%"
             },
             "KZ-005": {
                 title: "Safety Enhancement",
-                description: "Improve lab safety procedures and incident prevention",
-                team: "Safety"
+                description: "Improve lab safety procedures and incident prevention"
             }
         };
 
-        // Initialize localStorage for likes
-        function initializeLikes() {
-            for (let projectId in projects) {
-                if (!localStorage.getItem(`likes_${projectId}`)) {
-                    localStorage.setItem(`likes_${projectId}`, '0');
-                }
+        // Fetch likes from Google Sheets
+        async function fetchLikes() {
+            try {
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/query?tq=select A,B&headers=1`;
+                const response = await fetch(url);
+                const text = await response.text();
+                
+                // Parse Google Visualization API response
+                const data = JSON.parse(text.substring(47).slice(0, -2));
+                const rows = data.table.rows;
+                
+                let likes = {};
+                rows.forEach(row => {
+                    const projectId = row.c[0].v;
+                    const likeCount = row.c[1].v;
+                    likes[projectId] = likeCount;
+                });
+                
+                return likes;
+            } catch (error) {
+                console.error('Error fetching likes:', error);
+                return {};
             }
         }
 
-        // Render all project cards
-        function renderProjects() {
+        // Render projects with likes from Google Sheets
+        async function renderProjects() {
             const grid = document.getElementById('projectsGrid');
+            const likes = await fetchLikes();
+            
             grid.innerHTML = '';
 
             for (let projectId in projects) {
                 const project = projects[projectId];
-                const likes = localStorage.getItem(`likes_${projectId}`) || '0';
+                const likeCount = likes[projectId] || 0;
 
                 const card = document.createElement('div');
                 card.className = 'project-card';
@@ -208,10 +218,9 @@
                     <div class="project-title">${project.title}</div>
                     <div class="project-description">${project.description}</div>
                     <div class="likes-section">
-                        <div class="likes-count">❤️ ${likes}</div>
-                        <button class="like-btn" onclick="addLike('${projectId}')">👍 Like</button>
+                        <div class="likes-count">❤️ ${likeCount}</div>
+                        <a href="nfc-like.html?id=${projectId}" class="like-btn" style="text-decoration: none;">👍 Like</a>
                     </div>
-                    <div class="success-message" id="msg-${projectId}">✅ Thank you!</div>
                 `;
                 grid.appendChild(card);
             }
@@ -219,27 +228,10 @@
             document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
         }
 
-        // Add like and show confirmation
-        function addLike(projectId) {
-            let likes = parseInt(localStorage.getItem(`likes_${projectId}`)) || 0;
-            likes++;
-            localStorage.setItem(`likes_${projectId}`, likes);
-
-            // Update the display
-            renderProjects();
-
-            // Show success message
-            const msg = document.getElementById(`msg-${projectId}`);
-            msg.classList.add('show');
-            setTimeout(() => {
-                msg.classList.remove('show');
-            }, 2000);
-        }
-
-        // Initialize on page load
+        // Refresh every 3 seconds to show updated likes
         window.addEventListener('DOMContentLoaded', () => {
-            initializeLikes();
             renderProjects();
+            setInterval(renderProjects, 3000);
         });
     </script>
 </body>
