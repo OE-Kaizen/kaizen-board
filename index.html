@@ -143,67 +143,61 @@
         </footer>
     </div>
 
-    <script>
-        const projects = {
-            "KZ-001": {
-                title: "Reduce Process Time",
-                description: "Streamline approval workflow to reduce turnaround time by 40%"
-            },
-            "KZ-002": {
-                title: "Cost Reduction",
-                description: "Optimize material sourcing and reduce procurement costs"
-            },
-            "KZ-003": {
-                title: "Waste Elimination",
-                description: "Cut packaging waste and improve sustainability practices"
-            },
-            "KZ-004": {
-                title: "Quality Improvement",
-                description: "Reduce defects in final testing phase by 50%"
-            },
-            "KZ-005": {
-                title: "Safety Enhancement",
-                description: "Improve lab safety procedures and incident prevention"
-            }
-        };
+ <script>
+    const projects = {
+        "KZ-001": {
+            title: "Reduce Process Time",
+            description: "Streamline approval workflow to reduce turnaround time by 40%"
+        },
+        "KZ-002": {
+            title: "Cost Reduction",
+            description: "Optimize material sourcing and reduce procurement costs"
+        },
+        "KZ-003": {
+            title: "Waste Elimination",
+            description: "Cut packaging waste and improve sustainability practices"
+        },
+        "KZ-004": {
+            title: "Quality Improvement",
+            description: "Reduce defects in final testing phase by 50%"
+        },
+        "KZ-005": {
+            title: "Safety Enhancement",
+            description: "Improve lab safety procedures and incident prevention"
+        }
+    };
 
-        let likes = {
-            "KZ-001": 0,
-            "KZ-002": 0,
-            "KZ-003": 0,
-            "KZ-004": 0,
-            "KZ-005": 0
-        };
+    function renderProjects() {
+        const grid = document.getElementById('projectsGrid');
+        grid.innerHTML = '';
 
-        function renderProjects() {
-            const grid = document.getElementById('projectsGrid');
-            grid.innerHTML = '';
+        for (let projectId in projects) {
+            const project = projects[projectId];
+            // Get like count from localStorage
+            const likeCount = parseInt(localStorage.getItem(`likes_${projectId}`)) || 0;
 
-            for (let projectId in projects) {
-                const project = projects[projectId];
-                const likeCount = likes[projectId] || 0;
-
-                const card = document.createElement('div');
-                card.className = 'project-card';
-                card.innerHTML = `
-                    <div class="project-id">${projectId}</div>
-                    <div class="project-title">${project.title}</div>
-                    <div class="project-description">${project.description}</div>
-                    <div class="likes-section">
-                        <div class="likes-count">❤️ ${likeCount}</div>
-                        <a href="nfc-like.html?id=${projectId}" class="like-btn">👍 Like</a>
-                    </div>
-                `;
-                grid.appendChild(card);
-            }
-
-            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+            const card = document.createElement('div');
+            card.className = 'project-card';
+            card.innerHTML = `
+                <div class="project-id">${projectId}</div>
+                <div class="project-title">${project.title}</div>
+                <div class="project-description">${project.description}</div>
+                <div class="likes-section">
+                    <div class="likes-count">❤️ ${likeCount}</div>
+                    <a href="nfc-like.html?id=${projectId}" class="like-btn">👍 Like</a>
+                </div>
+            `;
+            grid.appendChild(card);
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
-            renderProjects();
-            setInterval(renderProjects, 2000);
-        });
-    </script>
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        renderProjects();
+        // Refresh every 2 seconds to catch updates from NFC taps
+        setInterval(renderProjects, 2000);
+    });
+</script>
 </body>
 </html>
