@@ -135,7 +135,7 @@
         </header>
 
         <div class="projects-grid" id="projectsGrid">
-            <!-- Projects loaded here -->
+            <p style="color: white; text-align: center; grid-column: 1/-1;">Loading projects...</p>
         </div>
 
         <footer>
@@ -148,26 +148,14 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAkpJS33MYZiioWbi9Nmv1qYwAq_DHH4gI",
-            authDomain: "kaizen-board-b5144.firebaseapp.com",
-            databaseURL: "https://kaizen-board-b5144-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "kaizen-board-b5144",
-            storageBucket: "kaizen-board-b5144.firebasestorage.app",
-            messagingSenderId: "737336450726",
-            appId: "1:737336450726:web:69e27d3944bdf51dd29e67",
-            measurementId: "G-VJF9PQHEVK"
+        let db = null;
+        let likes = {
+            "KZ-001": 0,
+            "KZ-002": 0,
+            "KZ-003": 0,
+            "KZ-004": 0,
+            "KZ-005": 0
         };
-
-        let db;
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            console.log('Firebase initialized successfully');
-        } catch (error) {
-            console.error('Firebase init error:', error);
-        }
 
         const projects = {
             "KZ-001": {
@@ -192,13 +180,36 @@
             }
         };
 
-        let likes = {
-            "KZ-001": 0,
-            "KZ-002": 0,
-            "KZ-003": 0,
-            "KZ-004": 0,
-            "KZ-005": 0
-        };
+        function initFirebase() {
+            if (typeof firebase === 'undefined') {
+                console.log('Waiting for Firebase to load...');
+                setTimeout(initFirebase, 100);
+                return;
+            }
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyAkpJS33MYZiioWbi9Nmv1qYwAq_DHH4gI",
+                authDomain: "kaizen-board-b5144.firebaseapp.com",
+                databaseURL: "https://kaizen-board-b5144-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "kaizen-board-b5144",
+                storageBucket: "kaizen-board-b5144.firebasestorage.app",
+                messagingSenderId: "737336450726",
+                appId: "1:737336450726:web:69e27d3944bdf51dd29e67",
+                measurementId: "G-VJF9PQHEVK"
+            };
+
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.database();
+                console.log('Firebase initialized successfully');
+                listenToLikes();
+            } catch (error) {
+                console.error('Firebase init error:', error);
+                renderProjects();
+            }
+        }
 
         function listenToLikes() {
             try {
@@ -217,7 +228,7 @@
                     renderProjects();
                 });
             } catch (error) {
-                console.error('Firebase error:', error);
+                console.error('Error listening to likes:', error);
                 renderProjects();
             }
         }
@@ -248,9 +259,10 @@
             document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
         }
 
+        // Wait for page to load, then init Firebase
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('Page loaded, connecting to Firebase...');
-            listenToLikes();
+            console.log('Page loaded, initializing Firebase...');
+            initFirebase();
         });
     </script>
 </body>
