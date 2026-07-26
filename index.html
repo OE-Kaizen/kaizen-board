@@ -143,8 +143,25 @@
         </footer>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+
     <script>
-        // Using localStorage as simple database
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkpJS33MYZiioWbi9Nmv1qYwAq_DHH4gI",
+            authDomain: "kaizen-board-b5144.firebaseapp.com",
+            databaseURL: "https://kaizen-board-b5144-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "kaizen-board-b5144",
+            storageBucket: "kaizen-board-b5144.firebasestorage.app",
+            messagingSenderId: "737336450726",
+            appId: "1:737336450726:web:69e27d3944bdf51dd29e67",
+            measurementId: "G-VJF9PQHEVK"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         const projects = {
             "KZ-001": {
                 title: "Reduce Process Time",
@@ -168,13 +185,21 @@
             }
         };
 
-        // Initialize localStorage with 0 if not set
-        function initializeLikes() {
-            for (let projectId in projects) {
-                if (!localStorage.getItem(`likes_${projectId}`)) {
-                    localStorage.setItem(`likes_${projectId}`, '0');
+        let likes = {};
+
+        function listenToLikes() {
+            db.ref('likes').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    likes = data;
+                } else {
+                    for (let projectId in projects) {
+                        likes[projectId] = 0;
+                    }
+                    db.ref('likes').set(likes);
                 }
-            }
+                renderProjects();
+            });
         }
 
         function renderProjects() {
@@ -183,7 +208,7 @@
 
             for (let projectId in projects) {
                 const project = projects[projectId];
-                const likeCount = localStorage.getItem(`likes_${projectId}`) || '0';
+                const likeCount = likes[projectId] || 0;
 
                 const card = document.createElement('div');
                 card.className = 'project-card';
@@ -203,15 +228,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            initializeLikes();
-            renderProjects();
-            // Refresh every 2 seconds to show updates from other devices
-            setInterval(renderProjects, 2000);
-        });
-
-        // Listen for storage changes from other tabs/windows
-        window.addEventListener('storage', () => {
-            renderProjects();
+            listenToLikes();
         });
     </script>
 </body>
