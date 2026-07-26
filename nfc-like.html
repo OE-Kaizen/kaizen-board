@@ -109,7 +109,25 @@
         <a href="index.html" class="back-link">← Back to Board</a>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+
     <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkpJS33MYZiioWbi9Nmv1qYwAq_DHH4gI",
+            authDomain: "kaizen-board-b5144.firebaseapp.com",
+            databaseURL: "https://kaizen-board-b5144-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "kaizen-board-b5144",
+            storageBucket: "kaizen-board-b5144.firebasestorage.app",
+            messagingSenderId: "737336450726",
+            appId: "1:737336450726:web:69e27d3944bdf51dd29e67",
+            measurementId: "G-VJF9PQHEVK"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         const projects = {
             "KZ-001": "Reduce Process Time",
             "KZ-002": "Cost Reduction",
@@ -123,27 +141,23 @@
             const projectId = urlParams.get('id');
 
             if (projectId && projects[projectId]) {
-                // Get current like count
-                let currentLikes = parseInt(localStorage.getItem(`likes_${projectId}`)) || 0;
-                currentLikes++;
-                
-                // Save to localStorage
-                localStorage.setItem(`likes_${projectId}`, currentLikes);
-                
-                // Notify other tabs/windows of the change
-                window.dispatchEvent(new StorageEvent('storage', {
-                    key: `likes_${projectId}`,
-                    newValue: currentLikes.toString(),
-                    oldValue: (currentLikes - 1).toString()
-                }));
-                
-                // Display
-                document.getElementById('projectTitle').textContent = projects[projectId];
-                document.getElementById('likeCount').textContent = currentLikes;
+                try {
+                    const snapshot = await db.ref(`likes/${projectId}`).get();
+                    let currentLikes = snapshot.val() || 0;
+                    currentLikes++;
+                    
+                    await db.ref(`likes/${projectId}`).set(currentLikes);
+                    
+                    document.getElementById('projectTitle').textContent = projects[projectId];
+                    document.getElementById('likeCount').textContent = currentLikes;
 
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 3000);
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 3000);
+                } catch (error) {
+                    console.error('Error:', error);
+                    document.getElementById('projectTitle').textContent = 'Error updating';
+                }
             } else {
                 document.querySelector('.card').innerHTML = '<h1>❌ Invalid Project</h1>';
             }
