@@ -148,107 +148,110 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
 
     <script>
-    const firebaseConfig = {
-    apiKey: "AIzaSyAkpJS33MYZiioWbi9Nmv1qYwAq_DHH4gI",
-    authDomain: "kaizen-board-b5144.firebaseapp.com",
-    databaseURL: "https://kaizen-board-b5144-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "kaizen-board-b5144",
-    storageBucket: "kaizen-board-b5144.firebasestorage.app",
-    messagingSenderId: "737336450726",
-    appId: "1:737336450726:web:69e27d3944bdf51dd29e67",
-    measurementId: "G-VJF9PQHEVK"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyAkpJS33MYZiioWbi9Nmv1qYwAq_DHH4gI",
+            authDomain: "kaizen-board-b5144.firebaseapp.com",
+            databaseURL: "https://kaizen-board-b5144-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "kaizen-board-b5144",
+            storageBucket: "kaizen-board-b5144.firebasestorage.app",
+            messagingSenderId: "737336450726",
+            appId: "1:737336450726:web:69e27d3944bdf51dd29e67",
+            measurementId: "G-VJF9PQHEVK"
+        };
 
-try {
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    console.log('Firebase initialized successfully');
-} catch (error) {
-    console.error('Firebase init error:', error);
-}
+        let db;
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            console.log('Firebase initialized successfully');
+        } catch (error) {
+            console.error('Firebase init error:', error);
+        }
 
-const projects = {
-    "KZ-001": {
-        title: "Reduce Process Time",
-        description: "Streamline approval workflow to reduce turnaround time by 40%"
-    },
-    "KZ-002": {
-        title: "Cost Reduction",
-        description: "Optimize material sourcing and reduce procurement costs"
-    },
-    "KZ-003": {
-        title: "Waste Elimination",
-        description: "Cut packaging waste and improve sustainability practices"
-    },
-    "KZ-004": {
-        title: "Quality Improvement",
-        description: "Reduce defects in final testing phase by 50%"
-    },
-    "KZ-005": {
-        title: "Safety Enhancement",
-        description: "Improve lab safety procedures and incident prevention"
-    }
-};
-
-let likes = {
-    "KZ-001": 0,
-    "KZ-002": 0,
-    "KZ-003": 0,
-    "KZ-004": 0,
-    "KZ-005": 0
-};
-
-function listenToLikes() {
-    try {
-        const db = firebase.database();
-        db.ref('likes').on('value', (snapshot) => {
-            const data = snapshot.val();
-            console.log('Firebase data:', data);
-            if (data) {
-                likes = data;
-            } else {
-                db.ref('likes').set(likes);
+        const projects = {
+            "KZ-001": {
+                title: "Reduce Process Time",
+                description: "Streamline approval workflow to reduce turnaround time by 40%"
+            },
+            "KZ-002": {
+                title: "Cost Reduction",
+                description: "Optimize material sourcing and reduce procurement costs"
+            },
+            "KZ-003": {
+                title: "Waste Elimination",
+                description: "Cut packaging waste and improve sustainability practices"
+            },
+            "KZ-004": {
+                title: "Quality Improvement",
+                description: "Reduce defects in final testing phase by 50%"
+            },
+            "KZ-005": {
+                title: "Safety Enhancement",
+                description: "Improve lab safety procedures and incident prevention"
             }
-            renderProjects();
-        }, (error) => {
-            console.error('Firebase read error:', error);
-            renderProjects();
+        };
+
+        let likes = {
+            "KZ-001": 0,
+            "KZ-002": 0,
+            "KZ-003": 0,
+            "KZ-004": 0,
+            "KZ-005": 0
+        };
+
+        function listenToLikes() {
+            try {
+                db.ref('likes').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    console.log('Firebase data received:', data);
+                    if (data) {
+                        likes = data;
+                    } else {
+                        console.log('No data found, initializing...');
+                        db.ref('likes').set(likes);
+                    }
+                    renderProjects();
+                }, (error) => {
+                    console.error('Firebase read error:', error);
+                    renderProjects();
+                });
+            } catch (error) {
+                console.error('Firebase error:', error);
+                renderProjects();
+            }
+        }
+
+        function renderProjects() {
+            console.log('Rendering projects with likes:', likes);
+            const grid = document.getElementById('projectsGrid');
+            grid.innerHTML = '';
+
+            for (let projectId in projects) {
+                const project = projects[projectId];
+                const likeCount = likes[projectId] || 0;
+
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.innerHTML = `
+                    <div class="project-id">${projectId}</div>
+                    <div class="project-title">${project.title}</div>
+                    <div class="project-description">${project.description}</div>
+                    <div class="likes-section">
+                        <div class="likes-count">❤️ ${likeCount}</div>
+                        <a href="nfc-like.html?id=${projectId}" class="like-btn">👍 Like</a>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('Page loaded, connecting to Firebase...');
+            listenToLikes();
         });
-    } catch (error) {
-        console.error('Firebase error:', error);
-        renderProjects();
-    }
-}
-
-function renderProjects() {
-    const grid = document.getElementById('projectsGrid');
-    grid.innerHTML = '';
-
-    for (let projectId in projects) {
-        const project = projects[projectId];
-        const likeCount = likes[projectId] || 0;
-
-        const card = document.createElement('div');
-        card.className = 'project-card';
-        card.innerHTML = `
-            <div class="project-id">${projectId}</div>
-            <div class="project-title">${project.title}</div>
-            <div class="project-description">${project.description}</div>
-            <div class="likes-section">
-                <div class="likes-count">❤️ ${likeCount}</div>
-                <a href="nfc-like.html?id=${projectId}" class="like-btn">👍 Like</a>
-            </div>
-        `;
-        grid.appendChild(card);
-    }
-
-    document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    console.log('Page loaded, connecting to Firebase...');
-    listenToLikes();
-});
     </script>
 </body>
 </html>
