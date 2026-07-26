@@ -193,11 +193,27 @@
         document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-        renderProjects();
-        // Refresh every 2 seconds to catch updates from NFC taps
-        setInterval(renderProjects, 2000);
-    });
+    // Sync localStorage to Google Sheet
+async function syncToSheet() {
+    try {
+        for (let projectId in projects) {
+            const likeCount = parseInt(localStorage.getItem(`likes_${projectId}`)) || 0;
+            const url = `https://script.google.com/a/macros/roche.com/s/AKfycbxDIjpCNDGYqfneXIx-qtQcmnEq9LCJXyem3eNWSdD17gt1vDce9QtfU6taOE56zB0v/exec?id=${projectId}&likes=${likeCount}`;
+            
+            // Try to sync (won't block if fails)
+            fetch(url, { mode: 'no-cors' }).catch(() => {});
+        }
+    } catch (e) {
+        console.log('Sync attempted');
+    }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    renderProjects();
+    syncToSheet(); // Sync to Google Sheet on page load
+    // Refresh every 2 seconds to catch updates from NFC taps
+    setInterval(renderProjects, 2000);
+});
 </script>
 </body>
 </html>
