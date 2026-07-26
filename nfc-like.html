@@ -109,55 +109,51 @@
         <a href="index.html" class="back-link">← Back to Board</a>
     </div>
 
-   <script>
-    // REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT DEPLOYMENT URL
-    const SCRIPT_URL = 'https://script.google.com/a/macros/roche.com/s/AKfycbxDIjpCNDGYqfneXIx-qtQcmnEq9LCJXyem3eNWSdD17gt1vDce9QtfU6taOE56zB0v/exec';
-    
-    const projects = {
-        "KZ-001": "Reduce Process Time",
-        "KZ-002": "Cost Reduction",
-        "KZ-003": "Waste Elimination",
-        "KZ-004": "Quality Improvement",
-        "KZ-005": "Safety Enhancement"
-    };
+    <script>
+        const SCRIPT_URL = 'https://script.google.com/a/macros/roche.com/s/AKfycbxDIjpCNDGYqfneXIx-qtQcmnEq9LCJXyem3eNWSdD17gt1vDce9QtfU6taOE56zB0v/exec';
+        
+        const projects = {
+            "KZ-001": "Reduce Process Time",
+            "KZ-002": "Cost Reduction",
+            "KZ-003": "Waste Elimination",
+            "KZ-004": "Quality Improvement",
+            "KZ-005": "Safety Enhancement"
+        };
 
-    // Update likes via Google Apps Script
-    async function updateLikes(projectId) {
-        try {
-            const response = await fetch(SCRIPT_URL, {
-                method: 'POST',
-                body: new URLSearchParams({
-                    id: projectId
-                })
-            });
-            
-            const data = await response.json();
-            return data.likes || 0;
-        } catch (error) {
-            console.error('Error updating likes:', error);
-            return 0;
+        async function updateLike(projectId) {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: new URLSearchParams({ id: projectId })
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                return data.likes || 0;
+            } catch (error) {
+                console.error('Error:', error);
+                return 0;
+            }
         }
-    }
 
-    // Main logic
-    async function processTap() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const projectId = urlParams.get('id');
+        async function processTap() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('id');
 
-        if (projectId && projects[projectId]) {
-            const newLikes = await updateLikes(projectId);
-            document.getElementById('projectTitle').textContent = projects[projectId];
-            document.getElementById('likeCount').textContent = newLikes;
+            if (projectId && projects[projectId]) {
+                const newLikes = await updateLike(projectId);
+                document.getElementById('projectTitle').textContent = projects[projectId];
+                document.getElementById('likeCount').textContent = newLikes;
 
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 3000);
-        } else {
-            document.querySelector('.card').innerHTML = '<h1>❌ Invalid Project</h1><p>Could not find project.</p>';
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 3000);
+            } else {
+                document.querySelector('.card').innerHTML = '<h1>❌ Invalid Project</h1>';
+            }
         }
-    }
 
-    window.addEventListener('DOMContentLoaded', processTap);
-</script>
+        window.addEventListener('DOMContentLoaded', processTap);
+    </script>
 </body>
 </html>
