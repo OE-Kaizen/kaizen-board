@@ -144,6 +144,8 @@
     </div>
 
  <script>
+    const SHEET_ID = '1PICj7sq2iL__kKUa4NMQ3ZGDGxaZAlPQ2oPi-0cIWWI';
+    
     const projects = {
         "KZ-001": {
             title: "Reduce Process Time",
@@ -167,14 +169,46 @@
         }
     };
 
+    let likes = {};
+
+    // Fetch likes from Google Sheet
+    async function fetchLikesFromSheet() {
+        try {
+            const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/query?tq=select A,B&headers=1`;
+            const response = await fetch(url);
+            const text = await response.text();
+            const data = JSON.parse(text.substring(47).slice(0, -2));
+            
+            if (data.table && data.table.rows) {
+                data.table.rows.forEach(row => {
+                    if (row.c[0] && row.c[1]) {
+                        likes[row.c[0].v] = row.c[1].v;
+                    }
+                });
+            }
+        } catch (e) {
+            console.log('Using localStorage as fallback');
+            // Fallback to localStorage
+            for (let projectId in projects) {
+                likes[projectId] = parseInt(localStorage.getItem(`likes_${projectId}`)) || 0;
+            }
+        }
+    }
+
+    // Save likes to localStorage when they change
+    function saveLikesToLocalStorage() {
+        for (let projectId in likes) {
+            localStorage.setItem(`likes_${projectId}`, likes[projectId]);
+        }
+    }
+
     function renderProjects() {
         const grid = document.getElementById('projectsGrid');
         grid.innerHTML = '';
 
         for (let projectId in projects) {
             const project = projects[projectId];
-            // Get like count from localStorage
-            const likeCount = parseInt(localStorage.getItem(`likes_${projectId}`)) || 0;
+            const likeCount = likes[projectId] || 0;
 
             const card = document.createElement('div');
             card.className = 'project-card';
@@ -193,27 +227,15 @@
         document.getElementById('lastUpdate').textContent = new Date().toLocaleString();
     }
 
-    // Sync localStorage to Google Sheet
-async function syncToSheet() {
-    try {
-        for (let projectId in projects) {
-            const likeCount = parseInt(localStorage.getItem(`likes_${projectId}`)) || 0;
-            const url = `https://script.google.com/a/macros/roche.com/s/AKfycbxDIjpCNDGYqfneXIx-qtQcmnEq9LCJXyem3eNWSdD17gt1vDce9QtfU6taOE56zB0v/exec?id=${projectId}&likes=${likeCount}`;
-            
-            // Try to sync (won't block if fails)
-            fetch(url, { mode: 'no-cors' }).catch(() => {});
-        }
-    } catch (e) {
-        console.log('Sync attempted');
-    }
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    renderProjects();
-    syncToSheet(); // Sync to Google Sheet on page load
-    // Refresh every 2 seconds to catch updates from NFC taps
-    setInterval(renderProjects, 2000);
-});
+    window.addEventListener('DOMContentLoaded', async () => {
+        await fetchLikesFromSheet();
+        renderProjects();
+        // Refresh every 3 seconds
+        setInterval(async () => {
+            await fetchLikesFromSheet();
+            renderProjects();
+        }, 3000);
+    });
 </script>
 </body>
 </html>
