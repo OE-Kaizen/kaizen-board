@@ -109,9 +109,9 @@
         <a href="index.html" class="back-link">← Back to Board</a>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
+    <!-- Firebase SDK from jsDelivr CDN (more reliable) -->
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.2/dist/firebase-app.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/firebase@9.22.2/dist/firebase-database.min.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -126,4 +126,56 @@
         };
 
         const projects = {
-            "KZ-001": "Reduce Process Time
+            "KZ-001": "Reduce Process Time",
+            "KZ-002": "Cost Reduction",
+            "KZ-003": "Waste Elimination",
+            "KZ-004": "Quality Improvement",
+            "KZ-005": "Safety Enhancement"
+        };
+
+        // Initialize Firebase after a delay to ensure SDKs are loaded
+        setTimeout(() => {
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                const db = firebase.database();
+                const urlParams = new URLSearchParams(window.location.search);
+                const projectId = urlParams.get('id');
+
+                if (projectId && projects[projectId]) {
+                    // Read current likes value
+                    db.ref('likes/' + projectId).once('value').then((snapshot) => {
+                        let currentLikes = snapshot.val() || 0;
+                        currentLikes++;
+
+                        // Update with incremented value
+                        return db.ref('likes/' + projectId).set(currentLikes);
+                    }).then(() => {
+                        // Read the updated value and display it
+                        return db.ref('likes/' + projectId).once('value');
+                    }).then((snapshot) => {
+                        document.getElementById('projectTitle').textContent = projects[projectId];
+                        document.getElementById('likeCount').textContent = snapshot.val();
+                        console.log('Like count updated:', snapshot.val());
+                        
+                        // Redirect after 3 seconds
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 3000);
+                    }).catch((error) => {
+                        console.error('Firebase error:', error);
+                        document.getElementById('projectTitle').textContent = 'Error: ' + error.message;
+                    });
+                } else {
+                    document.querySelector('.card').innerHTML = '<h1>❌ Invalid Project ID</h1>';
+                    console.error('Invalid or missing project ID:', projectId);
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                document.getElementById('projectTitle').textContent = 'Error initializing Firebase';
+            }
+        }, 500);
+    </script>
+</body>
+</html>
