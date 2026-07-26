@@ -109,51 +109,51 @@
         <a href="index.html" class="back-link">← Back to Board</a>
     </div>
 
-    <script>
-        const SCRIPT_URL = 'https://script.google.com/a/macros/roche.com/s/AKfycbxDIjpCNDGYqfneXIx-qtQcmnEq9LCJXyem3eNWSdD17gt1vDce9QtfU6taOE56zB0v/exec';
-        
-        const projects = {
-            "KZ-001": "Reduce Process Time",
-            "KZ-002": "Cost Reduction",
-            "KZ-003": "Waste Elimination",
-            "KZ-004": "Quality Improvement",
-            "KZ-005": "Safety Enhancement"
-        };
+   <script>
+    const projects = {
+        "KZ-001": "Reduce Process Time",
+        "KZ-002": "Cost Reduction",
+        "KZ-003": "Waste Elimination",
+        "KZ-004": "Quality Improvement",
+        "KZ-005": "Safety Enhancement"
+    };
 
-        async function updateLike(projectId) {
+    async function processTap() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('id');
+
+        if (projectId && projects[projectId]) {
+            // Get current like count from localStorage
+            let currentLikes = parseInt(localStorage.getItem(`likes_${projectId}`)) || 0;
+            currentLikes++;
+            
+            // Save to localStorage
+            localStorage.setItem(`likes_${projectId}`, currentLikes);
+            
+            // Display
+            document.getElementById('projectTitle').textContent = projects[projectId];
+            document.getElementById('likeCount').textContent = currentLikes;
+
+            // Call Google Apps Script in background (doesn't matter if it fails)
             try {
-                const response = await fetch(SCRIPT_URL, {
+                fetch('https://script.google.com/a/macros/roche.com/s/AKfycbxDIjpCNDGYqfneXIx-qtQcmnEq9LCJXyem3eNWSdD17gt1vDce9QtfU6taOE56zB0v/exec', {
                     method: 'POST',
+                    mode: 'no-cors',
                     body: new URLSearchParams({ id: projectId })
                 });
-                
-                const data = await response.json();
-                console.log('Response:', data);
-                return data.likes || 0;
-            } catch (error) {
-                console.error('Error:', error);
-                return 0;
+            } catch (e) {
+                console.log('Background update attempted');
             }
+
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 3000);
+        } else {
+            document.querySelector('.card').innerHTML = '<h1>❌ Invalid Project</h1>';
         }
+    }
 
-        async function processTap() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const projectId = urlParams.get('id');
-
-            if (projectId && projects[projectId]) {
-                const newLikes = await updateLike(projectId);
-                document.getElementById('projectTitle').textContent = projects[projectId];
-                document.getElementById('likeCount').textContent = newLikes;
-
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 3000);
-            } else {
-                document.querySelector('.card').innerHTML = '<h1>❌ Invalid Project</h1>';
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', processTap);
-    </script>
+    window.addEventListener('DOMContentLoaded', processTap);
+</script>
 </body>
 </html>
