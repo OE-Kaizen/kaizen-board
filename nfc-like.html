@@ -114,26 +114,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js"></script>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAkpJS33MYZiioWbi9Nmv1qYwAq_DHH4gI",
-            authDomain: "kaizen-board-b5144.firebaseapp.com",
-            databaseURL: "https://kaizen-board-b5144-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "kaizen-board-b5144",
-            storageBucket: "kaizen-board-b5144.firebasestorage.app",
-            messagingSenderId: "737336450726",
-            appId: "1:737336450726:web:69e27d3944bdf51dd29e67",
-            measurementId: "G-VJF9PQHEVK"
-        };
-
-        let db;
-        
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            console.log('Firebase initialized');
-        } catch (error) {
-            console.error('Firebase init error:', error);
-        }
+        let db = null;
 
         const projects = {
             "KZ-001": "Reduce Process Time",
@@ -143,6 +124,37 @@
             "KZ-005": "Safety Enhancement"
         };
 
+        function initFirebase() {
+            if (typeof firebase === 'undefined') {
+                console.log('Waiting for Firebase to load...');
+                setTimeout(initFirebase, 100);
+                return;
+            }
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyAkpJS33MYZiioWbi9Nmv1qYwAq_DHH4gI",
+                authDomain: "kaizen-board-b5144.firebaseapp.com",
+                databaseURL: "https://kaizen-board-b5144-default-rtdb.asia-southeast1.firebasedatabase.app",
+                projectId: "kaizen-board-b5144",
+                storageBucket: "kaizen-board-b5144.firebasestorage.app",
+                messagingSenderId: "737336450726",
+                appId: "1:737336450726:web:69e27d3944bdf51dd29e67",
+                measurementId: "G-VJF9PQHEVK"
+            };
+
+            try {
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                db = firebase.database();
+                console.log('Firebase initialized');
+                processTap();
+            } catch (error) {
+                console.error('Firebase init error:', error);
+                processTap();
+            }
+        }
+
         function processTap() {
             const urlParams = new URLSearchParams(window.location.search);
             const projectId = urlParams.get('id');
@@ -150,6 +162,12 @@
 
             if (projectId && projects[projectId]) {
                 try {
+                    if (!db) {
+                        document.getElementById('projectTitle').textContent = 'Initializing...';
+                        setTimeout(processTap, 100);
+                        return;
+                    }
+
                     db.ref(`likes/${projectId}`).once('value', (snapshot) => {
                         let currentLikes = snapshot.val() || 0;
                         console.log('Current likes:', currentLikes);
@@ -180,9 +198,10 @@
             }
         }
 
+        // Wait for page to load, then init Firebase
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('NFC page loaded');
-            processTap();
+            console.log('NFC page loaded, initializing Firebase...');
+            initFirebase();
         });
     </script>
 </body>
