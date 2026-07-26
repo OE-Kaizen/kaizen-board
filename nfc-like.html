@@ -109,7 +109,7 @@
         <a href="index.html" class="back-link">← Back to Board</a>
     </div>
 
-   <script>
+ <script>
     const projects = {
         "KZ-001": "Reduce Process Time",
         "KZ-002": "Cost Reduction",
@@ -133,17 +133,6 @@
             // Display
             document.getElementById('projectTitle').textContent = projects[projectId];
             document.getElementById('likeCount').textContent = currentLikes;
-
-            // Call Google Apps Script in background (doesn't matter if it fails)
-            try {
-                fetch('https://script.google.com/a/macros/roche.com/s/AKfycbxDIjpCNDGYqfneXIx-qtQcmnEq9LCJXyem3eNWSdD17gt1vDce9QtfU6taOE56zB0v/exec', {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: new URLSearchParams({ id: projectId })
-                });
-            } catch (e) {
-                console.log('Background update attempted');
-            }
 
             setTimeout(() => {
                 window.location.href = 'index.html';
