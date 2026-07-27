@@ -126,7 +126,6 @@
 
 <script>
 // ── CONFIG — replace with your new personal Google account Apps Script URL ──
-const APPS_SCRIPT_URL = "PASTE_YOUR_NEW_APPS_SCRIPT_URL_HERE";
 
 const TAG_LABELS = {
   p1: "P1",
@@ -174,10 +173,7 @@ function isRecentTap(tagId) {
     return;
   }
 
-  try {
-    const res  = await fetch(
-      `${APPS_SCRIPT_URL}?action=like&id=${encodeURIComponent(tagId)}`,
-      { cache: "no-store" }
+ 
     );
     const data = await res.json();
 
