@@ -3,207 +3,164 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kaizen Like — Roche</title>
+  <title>Kaizen Like</title>
   <style>
-    :root {
-      --roche-blue:   #0066CC;
-      --roche-dark:   #003366;
-      --roche-accent: #FF6600;
-    }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: "Segoe UI", Arial, sans-serif;
-      background: linear-gradient(135deg, var(--roche-dark) 0%, var(--roche-blue) 100%);
+      background: #f0f0f0;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       padding: 24px;
+    }
+
+    /* ── Outer card with blue/orange gradient border ── */
+    .card-wrapper {
+      background: linear-gradient(135deg, #0033AA, #FF6600);
+      border-radius: 20px;
+      padding: 5px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 48px 32px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
       text-align: center;
     }
 
-    /* ── Logo ─────────────────────────────────── */
-    .roche-logo {
-      display: flex; align-items: center;
-      gap: 10px; margin-bottom: 32px;
+    /* ── Heart ── */
+    .heart {
+      font-size: 80px;
+      line-height: 1;
+      margin-bottom: 28px;
+      animation: heartBeat 0.7s ease;
     }
-    .roche-hexagon {
-      width: 40px; height: 40px;
-      background: #FFFFFF;
-      clip-path: polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .roche-hexagon span { font-size:16px; font-weight:900; color:var(--roche-blue); }
-    .logo-text { font-size:22px; font-weight:700; color:#fff; letter-spacing:2px; }
-
-    /* ── Card ─────────────────────────────────── */
-    .card {
-      background: #fff;
-      border-radius: 20px;
-      padding: 36px 28px;
-      max-width: 380px;
-      width: 100%;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.25);
-      position: relative;
-      overflow: hidden;
-    }
-    .card::before {
-      content: "";
-      position: absolute; top:0; left:0; right:0; height:5px;
-      background: linear-gradient(90deg, var(--roche-blue), var(--roche-accent));
+    @keyframes heartBeat {
+      0%   { transform: scale(0.5); opacity: 0; }
+      60%  { transform: scale(1.15); }
+      100% { transform: scale(1);   opacity: 1; }
     }
 
-    /* ── States ───────────────────────────────── */
-    .state { display: none; flex-direction: column; align-items: center; gap: 14px; }
-    .state.active { display: flex; }
+    /* ── Main message ── */
+    .message {
+      font-size: 20px;
+      font-weight: 400;
+      color: #222222;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .message strong {
+      font-weight: 700;
+    }
 
-    /* Loading */
+    /* ── Thank you line ── */
+    .thankyou {
+      font-size: 20px;
+      font-weight: 400;
+      color: #222222;
+      line-height: 1.5;
+      margin-bottom: 32px;
+    }
+
+    /* ── CTA link ── */
+    .cta {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0000EE;
+      text-decoration: none;
+      line-height: 1.3;
+    }
+    .cta:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Loading / Error states ── */
     .spinner {
-      width: 60px; height: 60px;
-      border: 5px solid #E0E8F8;
-      border-top-color: var(--roche-blue);
+      width: 50px; height: 50px;
+      border: 4px solid #E0E8F8;
+      border-top-color: #0033AA;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
+      margin-bottom: 20px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Success */
-    .big-heart {
-      font-size: 72px;
-      animation: heartBeat 0.6s ease;
-    }
-    @keyframes heartBeat {
-      0%   { transform: scale(0); }
-      50%  { transform: scale(1.3); }
-      100% { transform: scale(1); }
-    }
-    .success-title {
-      font-size: 26px; font-weight: 800;
-      color: var(--roche-blue);
-    }
-    .project-name {
-      font-size: 18px; font-weight: 600;
-      color: #333;
-      background: #E6F0FA;
-      padding: 8px 18px;
-      border-radius: 10px;
-      width: 100%;
-    }
-    .like-total {
-      font-size: 14px; color: #666;
-    }
-    .like-total strong { color: var(--roche-blue); font-size: 20px; }
-
-    /* Error */
-    .error-icon { font-size: 60px; }
-    .error-title {
-      font-size: 22px; font-weight: 700; color: #CC0000;
-    }
-    .error-msg { font-size: 14px; color: #555; }
-
-    /* Common text */
-    .sub-text { font-size: 13px; color: #888; }
-    .quarter-badge {
-      display: inline-block;
-      background: var(--roche-accent);
-      color: #fff;
-      font-size: 12px; font-weight: 600;
-      padding: 3px 12px; border-radius: 12px;
+    .loading-text {
+      font-size: 16px;
+      color: #555;
     }
 
-    /* ── Redirect bar ─────────────────────────── */
-    .redirect-bar {
-      margin-top: 18px;
-      width: 100%;
-      background: #E0E8F8;
-      border-radius: 6px;
-      height: 6px;
-      overflow: hidden;
-    }
-    .redirect-progress {
-      height: 100%;
-      background: var(--roche-blue);
-      width: 0%;
-      transition: width linear;
-    }
-    .redirect-text { font-size: 12px; color: #888; margin-top: 6px; }
+    .error-icon  { font-size: 56px; margin-bottom: 16px; }
+    .error-title { font-size: 20px; font-weight: 700; color: #CC0000; margin-bottom: 10px; }
+    .error-msg   { font-size: 15px; color: #555; }
 
-    /* ── View Board button ────────────────────── */
-    .btn-board {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 10px 24px;
-      background: var(--roche-blue);
-      color: #fff;
-      border-radius: 10px;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-    .btn-board:hover { background: var(--roche-dark); }
+    /* ── State visibility ── */
+    .state         { display: none; flex-direction: column; align-items: center; }
+    .state.active  { display: flex; }
   </style>
 </head>
 <body>
 
-<div class="roche-logo">
-  <div class="roche-hexagon"><span>R</span></div>
-  <span class="logo-text">ROCHE</span>
-</div>
+<div class="card-wrapper">
+  <div class="card">
 
-<div class="card">
-
-  <!-- LOADING STATE -->
-  <div class="state active" id="stateLoading">
-    <div class="spinner"></div>
-    <p style="color:#555; font-size:15px;">Recording your like…</p>
-  </div>
-
-  <!-- SUCCESS STATE -->
-  <div class="state" id="stateSuccess">
-    <div class="big-heart">❤️</div>
-    <div class="success-title">Thank you!</div>
-    <div class="project-name" id="successProject">—</div>
-    <div class="quarter-badge" id="successQuarter">Q1-2026</div>
-    <div class="like-total">
-      This project now has <strong id="successCount">—</strong> likes 🎉
+    <!-- LOADING -->
+    <div class="state active" id="stateLoading">
+      <div class="spinner"></div>
+      <p class="loading-text">Recording your like…</p>
     </div>
-    <p class="sub-text">Your support has been recorded.</p>
-    <a href="https://oe-kaizen.github.io/kaizen-board/" class="btn-board">
-      📊 View Full Board
-    </a>
-    <div class="redirect-bar">
-      <div class="redirect-progress" id="redirectProgress"></div>
+
+    <!-- SUCCESS -->
+    <div class="state" id="stateSuccess">
+      <div class="heart">❤️</div>
+      <p class="message">Your support to <strong id="projectLabel">this project</strong> has been recorded.</p>
+      <p class="thankyou">Thank you for participating!</p>
+      <a class="cta"
+         href="https://script.google.com/a/macros/roche.com/s/AKfycbzbsYJk55QF3NNL8BiVFbI3xuj0g1Eemk_nP2-x1UY1RrS-ojXhEX88P7suqJxWzKSKoA/exec"
+         target="_blank">
+        Click here to see the votes
+      </a>
     </div>
-    <p class="redirect-text" id="redirectText">Returning to board in 5s…</p>
-  </div>
 
-  <!-- ERROR STATE -->
-  <div class="state" id="stateError">
-    <div class="error-icon">⚠️</div>
-    <div class="error-title">Something went wrong</div>
-    <div class="error-msg" id="errorMsg">Could not record your like. Please try again.</div>
-    <a href="https://oe-kaizen.github.io/kaizen-board/" class="btn-board">
-      🏠 Return to Board
-    </a>
-  </div>
+    <!-- ERROR -->
+    <div class="state" id="stateError">
+      <div class="error-icon">⚠️</div>
+      <div class="error-title">Something went wrong</div>
+      <p class="error-msg" id="errorMsg">Could not record your like. Please try again.</p>
+    </div>
 
+  </div>
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────
-const APPS_SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbwGUsSvrCDG8dNZBhLGz5T8xFpzU63YmZXGPrZNXDSZfJcxa24Vd5f2vXM6oat0ipLU5Q/exec";
-const BOARD_URL        = "https://oe-kaizen.github.io/kaizen-board/";
-const REDIRECT_DELAY   = 5000;   // 5 seconds before auto-redirect
+// ── CONFIG ─────────────────────────────────────────────────────
+const APPS_SCRIPT_URL = "https://script.google.com/a/macros/roche.com/s/AKfycbzbsYJk55QF3NNL8BiVFbI3xuj0g1Eemk_nP2-x1UY1RrS-ojXhEX88P7suqJxWzKSKoA/exec";
 
-// ── HELPERS ───────────────────────────────────────────────────────
+// Tag ID → friendly label shown in the message (e.g. "P1")
+// Adjust these to match your project names if preferred
+const TAG_LABELS = {
+  p1: "P1",
+  p2: "P2",
+  p3: "P3",
+  p4: "P4",
+  p5: "P5"
+};
+
+// ── HELPERS ────────────────────────────────────────────────────
 function showState(id) {
-  ["stateLoading","stateSuccess","stateError"].forEach(s => {
-    document.getElementById(s).classList.remove("active");
-  });
+  ["stateLoading", "stateSuccess", "stateError"].forEach(s =>
+    document.getElementById(s).classList.remove("active")
+  );
   document.getElementById(id).classList.add("active");
 }
 
@@ -211,69 +168,33 @@ function getParam(name) {
   return new URLSearchParams(window.location.search).get(name) || "";
 }
 
-// ── ANTI-DOUBLE-TAP (1 like per tag per 30 seconds) ──────────────
+// Anti-double-tap: 30 s cooldown per tag stored in localStorage
 function isRecentTap(tagId) {
   const key  = `lastTap_${tagId}`;
   const last = parseInt(localStorage.getItem(key) || "0", 10);
   const now  = Date.now();
-  if (now - last < 30000) return true;   // within 30 s
+  if (now - last < 30000) return true;
   localStorage.setItem(key, now);
   return false;
 }
 
-// ── START REDIRECT COUNTDOWN ──────────────────────────────────────
-function startRedirectCountdown() {
-  const bar  = document.getElementById("redirectProgress");
-  const txt  = document.getElementById("redirectText");
-  let remaining = REDIRECT_DELAY / 1000;
-
-  // Animate progress bar
-  requestAnimationFrame(() => {
-    bar.style.transitionDuration = `${REDIRECT_DELAY}ms`;
-    bar.style.width = "100%";
-  });
-
-  const tick = setInterval(() => {
-    remaining--;
-    txt.textContent = `Returning to board in ${remaining}s…`;
-    if (remaining <= 0) {
-      clearInterval(tick);
-      window.location.href = BOARD_URL;
-    }
-  }, 1000);
-}
-
-// ── FETCH CURRENT LIKE COUNT FOR THIS TAG ─────────────────────────
-async function getCurrentCount(tagId) {
-  try {
-    const res  = await fetch(`${APPS_SCRIPT_URL}?action=counts`, { cache: "no-store" });
-    const data = await res.json();
-    if (data.status === "ok") {
-      const proj = data.projects.find(p => p.tagId === tagId);
-      return proj ? proj.likes : null;
-    }
-  } catch { /* ignore */ }
-  return null;
-}
-
-// ── MAIN ──────────────────────────────────────────────────────────
+// ── MAIN ───────────────────────────────────────────────────────
 (async function main() {
-  const tagId = getParam("id");
+  const tagId = getParam("id").toLowerCase();
 
   if (!tagId) {
     document.getElementById("errorMsg").textContent =
-      "No project ID found in URL. Please scan the correct NFC tag.";
+      "No project ID found in the URL. Please scan the correct NFC tag.";
     showState("stateError");
     return;
   }
 
-  // Check anti-double-tap
+  // Set the label shown in the success message
+  const label = TAG_LABELS[tagId] || tagId.toUpperCase();
+  document.getElementById("projectLabel").textContent = label;
+
+  // If tapped recently, still show success (just don't re-log)
   if (isRecentTap(tagId)) {
-    // Still show success but skip API call
-    document.getElementById("successProject").textContent = "Already liked recently!";
-    document.getElementById("successQuarter").textContent = "";
-    document.getElementById("successCount").textContent  = "—";
-    document.getElementById("redirectText").textContent  = "Tap once every 30 seconds 😊";
     showState("stateSuccess");
     return;
   }
@@ -288,15 +209,7 @@ async function getCurrentCount(tagId) {
 
     if (data.status !== "ok") throw new Error(data.message || "Script error");
 
-    // Fetch updated count
-    const count = await getCurrentCount(tagId);
-
-    // Show success
-    document.getElementById("successProject").textContent = data.projectName || tagId;
-    document.getElementById("successQuarter").textContent = data.quarter || "";
-    document.getElementById("successCount").textContent   = count !== null ? count : "…";
     showState("stateSuccess");
-    startRedirectCountdown();
 
   } catch (err) {
     console.error(err);
@@ -306,5 +219,6 @@ async function getCurrentCount(tagId) {
   }
 })();
 </script>
+
 </body>
 </html>
