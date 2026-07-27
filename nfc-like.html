@@ -17,7 +17,6 @@
       padding: 24px;
     }
 
-    /* ── Outer card with blue/orange gradient border ── */
     .card-wrapper {
       background: linear-gradient(135deg, #0033AA, #FF6600);
       border-radius: 20px;
@@ -34,11 +33,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 0;
       text-align: center;
     }
 
-    /* ── Heart ── */
     .heart {
       font-size: 80px;
       line-height: 1;
@@ -51,7 +48,6 @@
       100% { transform: scale(1);   opacity: 1; }
     }
 
-    /* ── Main message ── */
     .message {
       font-size: 20px;
       font-weight: 400;
@@ -63,70 +59,25 @@
       font-weight: 700;
     }
 
-    /* ── Thank you line ── */
     .thankyou {
       font-size: 20px;
       font-weight: 400;
       color: #222222;
       line-height: 1.5;
     }
-
-    /* ── Loading / Error states ── */
-    .spinner {
-      width: 50px; height: 50px;
-      border: 4px solid #E0E8F8;
-      border-top-color: #0033AA;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 20px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-text {
-      font-size: 16px;
-      color: #555;
-    }
-
-    .error-icon  { font-size: 56px; margin-bottom: 16px; }
-    .error-title { font-size: 20px; font-weight: 700; color: #CC0000; margin-bottom: 10px; }
-    .error-msg   { font-size: 15px; color: #555; }
-
-    /* ── State visibility ── */
-    .state        { display: none; flex-direction: column; align-items: center; }
-    .state.active { display: flex; }
   </style>
 </head>
 <body>
 
 <div class="card-wrapper">
   <div class="card">
-
-    <!-- LOADING -->
-    <div class="state active" id="stateLoading">
-      <div class="spinner"></div>
-      <p class="loading-text">Recording your like…</p>
-    </div>
-
-    <!-- SUCCESS -->
-    <div class="state" id="stateSuccess">
-      <div class="heart">❤️</div>
-      <p class="message">Your support to <strong id="projectLabel">this project</strong> has been recorded.</p>
-      <p class="thankyou">Thank you for participating!</p>
-    </div>
-
-    <!-- ERROR -->
-    <div class="state" id="stateError">
-      <div class="error-icon">⚠️</div>
-      <div class="error-title">Something went wrong</div>
-      <p class="error-msg" id="errorMsg">Could not record your like. Please try again.</p>
-    </div>
-
+    <div class="heart">❤️</div>
+    <p class="message">Your support to <strong id="projectLabel"></strong> has been recorded.</p>
+    <p class="thankyou">Thank you for participating!</p>
   </div>
 </div>
 
 <script>
-// ── CONFIG — replace with your new personal Google account Apps Script URL ──
-
 const TAG_LABELS = {
   p1: "P1",
   p2: "P2",
@@ -135,59 +86,9 @@ const TAG_LABELS = {
   p5: "P5"
 };
 
-function showState(id) {
-  ["stateLoading", "stateSuccess", "stateError"].forEach(s =>
-    document.getElementById(s).classList.remove("active")
-  );
-  document.getElementById(id).classList.add("active");
-}
-
-function getParam(name) {
-  return new URLSearchParams(window.location.search).get(name) || "";
-}
-
-function isRecentTap(tagId) {
-  const key  = `lastTap_${tagId}`;
-  const last = parseInt(localStorage.getItem(key) || "0", 10);
-  const now  = Date.now();
-  if (now - last < 30000) return true;
-  localStorage.setItem(key, now);
-  return false;
-}
-
-(async function main() {
-  const tagId = getParam("id").toLowerCase();
-
-  if (!tagId) {
-    document.getElementById("errorMsg").textContent =
-      "No project ID found in the URL. Please scan the correct NFC tag.";
-    showState("stateError");
-    return;
-  }
-
-  const label = TAG_LABELS[tagId] || tagId.toUpperCase();
-  document.getElementById("projectLabel").textContent = label;
-
-  if (isRecentTap(tagId)) {
-    showState("stateSuccess");
-    return;
-  }
-
- 
-    );
-    const data = await res.json();
-
-    if (data.status !== "ok") throw new Error(data.message || "Script error");
-
-    showState("stateSuccess");
-
-  } catch (err) {
-    console.error(err);
-    document.getElementById("errorMsg").textContent =
-      `Could not record your like: ${err.message}`;
-    showState("stateError");
-  }
-})();
+const tagId = new URLSearchParams(window.location.search).get("id") || "";
+const label = TAG_LABELS[tagId.toLowerCase()] || tagId.toUpperCase();
+document.getElementById("projectLabel").textContent = label;
 </script>
 
 </body>
